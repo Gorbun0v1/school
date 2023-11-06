@@ -17,6 +17,11 @@ public class FacultyService {
     // Создаем CRUD-методы
 
     public Faculty createFaculty(Faculty faculty) {
+       List<Faculty> faculties1 = faculties.values().stream()
+                        .filter(f -> f.getColor().equals(faculty.getColor())).toList();
+        if (faculties1.size() > 0) {
+            throw new RuntimeException();
+        }
         faculty.setId(++counter);
         faculties.put(counter, faculty);
         return faculty;
