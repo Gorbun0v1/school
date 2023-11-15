@@ -49,4 +49,14 @@ public class FacultyController {
         }
         return ResponseEntity.ok(Collections.emptyList());
     }
+
+    @GetMapping("/filterColorOrName")
+    public ResponseEntity<List<Faculty>> filterFindByColorOrName(@RequestParam(value = "color", required = false) String color, @RequestParam(value = "name", required = false) String name) {
+        if (name != null && !name.isBlank()) {
+            return ResponseEntity.ok(facultyService.findByName(name));
+        } if (color != null && !color.isBlank()) {
+            return ResponseEntity.ok(facultyService.findByColor(color));
+    }
+        return ResponseEntity.ok(facultyService.getAllFaculty());
+    }
 }
