@@ -16,6 +16,22 @@ public class Student {
 
     }
 
+    public Faculty getFaculty() {
+        return faculty;
+    }
+
+    public void setFaculty(Faculty faculty) {
+        this.faculty = faculty;
+    }
+
+//    public Avatar getAvatar() {
+//        return avatar;
+//    }
+//
+//    public void setAvatar(Avatar avatar) {
+//        this.avatar = avatar;
+//    }
+
     public Long getId() {
         return id;
     }

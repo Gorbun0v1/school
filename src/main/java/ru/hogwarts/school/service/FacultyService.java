@@ -1,12 +1,14 @@
 package ru.hogwarts.school.service;
 
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import ru.hogwarts.school.model.Faculty;
+import ru.hogwarts.school.model.Student;
 import ru.hogwarts.school.repository.FacultyRepository;
 
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
 
 @Service
 public class FacultyService {
@@ -41,14 +43,22 @@ public class FacultyService {
     }
 
     public List<Faculty> findByName(String name) {
-    return facultyRepository.findByColorOrNameIgnoreCase("", name);
+    return facultyRepository.findByNameIgnoreCaseOrColorIgnoreCase("", name);
     }
 
-    public List<Faculty> findByColor(String color) {
-        return facultyRepository.findByColorOrNameIgnoreCase(color, "");
+    public List<Faculty> findByColorOrName(String color, String name) {
+        return facultyRepository.findByNameIgnoreCaseOrColorIgnoreCase(color, name);
     }
 
     public List<Faculty> getAllFaculty() {
         return facultyRepository.findAll();
+    }
+
+    public Set<Student> getStudents(Long id) {
+        Optional<Faculty> faculty = facultyRepository.findById(id);
+        if (faculty.isPresent()) {
+            return faculty.get().getStudents();
+        }
+            throw new RuntimeException("ID не существует");
     }
 }
