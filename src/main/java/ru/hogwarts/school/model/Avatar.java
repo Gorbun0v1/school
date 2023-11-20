@@ -1,11 +1,12 @@
 package ru.hogwarts.school.model;
 
 import jakarta.persistence.*;
+import org.springframework.beans.factory.annotation.Value;
+import ru.hogwarts.school.model.Student;
 
 import java.nio.file.Path;
 import java.util.Arrays;
 import java.util.Objects;
-import java.util.Optional;
 
 @Entity
 public class Avatar {
@@ -53,7 +54,7 @@ public class Avatar {
     public void setAvatar(byte[] avatar) {
         this.avatar = avatar;
     }
-    public void setStudent(Optional<Student> student) {
+    public void setStudent(Student student) {
         this.student = student;
     }
 
