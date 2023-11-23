@@ -1,6 +1,7 @@
 package ru.hogwarts.school.service;
-
+import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 import ru.hogwarts.school.model.Avatar;
 import ru.hogwarts.school.model.Student;
@@ -10,44 +11,51 @@ import ru.hogwarts.school.repository.StudentRepository;
 import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.Optional;
 
 import static java.nio.file.StandardOpenOption.CREATE_NEW;
 
-public class AvatarService {    @Value("${students.avatars.dir.path}")
-private String avatarDir;
-    private final StudentService studentService;
+@Transactional
+@Service
+public class AvatarService {
+    private final StudentRepository studentRepository;
     private final AvatarRepository avatarRepository;
 
-    public AvatarService(StudentService studentService, AvatarRepository avatarRepository) {
-        this.studentService = studentService;
+    @Value("${path.to.avatars.folder}")
+    private String avatarsDir;
+
+    public AvatarService(StudentRepository studentRepository, AvatarRepository avatarRepository) {
         this.avatarRepository = avatarRepository;
+        this.studentRepository = studentRepository;
     }
-    public void uploadAvatar(Long studentId, MultipartFile file)throws IOException{
-        Student student = studentService.findById(studentId);
-        Path filePath = Path.of(avatarDir,student  + "."
-                + getExtension(file.getOriginalFilename()));
+
+    public void uploadAvatar(Long studentId, MultipartFile avatarFile) throws IOException {
+        Student student = studentRepository.getStudentById(studentId);
+        Path filePath = Path.of(avatarsDir, student + "." + getExtensions(avatarFile.getOriginalFilename()));
         Files.createDirectories(filePath.getParent());
         Files.deleteIfExists(filePath);
-        try (BufferedInputStream bis = new BufferedInputStream(file.getInputStream(),1024);
-             BufferedOutputStream bos = new BufferedOutputStream(Files.newOutputStream(filePath,CREATE_NEW),1024);
-        ){
+        try (InputStream is = avatarFile.getInputStream();
+             OutputStream os = Files.newOutputStream(filePath, CREATE_NEW); BufferedInputStream bis = new BufferedInputStream(is, 1024);
+             BufferedOutputStream bos = new BufferedOutputStream(os, 1024);) {
             bis.transferTo(bos);
         }
         Avatar avatar = findAvatar(studentId);
         avatar.setStudent(student);
-        avatar.setFilePath(filePath);
-        avatar.setFileSize(file.getSize());
-        avatar.setMediaType(file.getContentType());
-        avatar.setAvatar(file.getBytes());
+        avatar.setFilePath(filePath.toString());
+        avatar.setFileSize(avatarFile.getSize());
+        avatar.setMediaType(avatarFile.getContentType());
+        avatar.setData(avatarFile.getBytes());
         avatarRepository.save(avatar);
     }
-    public Avatar findAvatar(Long student_id){
-        if (avatarRepository.findByStudentId(student_id) != null){
-            return avatarRepository.findByStudentId(student_id);}
-        return new Avatar();
+
+    public Avatar findAvatar(Long studentId) {
+        Avatar avatar = avatarRepository.findByStudentId(studentId);
+        if (avatar == null)
+            return new Avatar();
+        return avatar;
     }
-    private String getExtension(String filename) {
-        return filename.substring(filename.lastIndexOf(".") + 1);
+
+    private String getExtensions(String fileName) {
+        return fileName.substring(fileName.lastIndexOf(".") + 1);
     }
+//    private Avatar findAvatar(long studentId)
 }
