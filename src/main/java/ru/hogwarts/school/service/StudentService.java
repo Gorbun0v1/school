@@ -32,8 +32,7 @@ public class StudentService {
     }
 
     public Student updateStudent(Student student) {
-        studentRepository.save(student);
-        return student;
+        return studentRepository.save(student);
     }
 
     public Student deleteStudent(long id) {
