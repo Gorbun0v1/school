@@ -19,7 +19,7 @@ public class StudentController {
         this.studentService = studentService;
     }
 
-    @PostMapping("/create/")
+    @PostMapping("/create")
     public ResponseEntity<Student> createStudent(@RequestBody Student student) {
         Student student1 = studentService.createStudent(student);
         return ResponseEntity.ok(student1);
@@ -46,7 +46,7 @@ public class StudentController {
     }
 
     @GetMapping("/filter")
-    public ResponseEntity<List<Student>> filterStudentsByAge(@RequestParam(required = false) int age) {
+    public ResponseEntity<List<Student>> filterStudentsByAge(@RequestParam(value = "age", required = false) int age) {
         if (age > 0) {
             return  ResponseEntity.ok(studentService.filterStudentsByAge(age));
         }

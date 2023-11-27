@@ -23,8 +23,7 @@ public class StudentService {
     // Создаем CRUD-методы
 
     public Student createStudent(Student student) {
-        studentRepository.save(student);
-        return student;
+       return studentRepository.save(student);
     }
 
     public Student readStudent(long id) {
