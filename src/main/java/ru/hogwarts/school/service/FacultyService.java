@@ -47,18 +47,18 @@ public class FacultyService {
     }
 
     public List<Faculty> findByColorOrName(String color, String name) {
-        return facultyRepository.findByNameIgnoreCaseOrColorIgnoreCase(color, name);
-    }
+        return facultyRepository.findByNameIgnoreCaseOrColorIgnoreCase(name, color);    }
 
     public List<Faculty> getAllFaculty() {
         return facultyRepository.findAll();
     }
 
     public Set<Student> getStudents(Long id) {
-        Optional<Faculty> faculty = facultyRepository.findById(id);
-        if (faculty.isPresent()) {
-            return faculty.get().getStudents();
-        }
-            throw new RuntimeException("ID не существует");
+//        Optional<Faculty> faculty = facultyRepository.findById(id);
+//        if (faculty.isPresent()) {
+//            return faculty.get().getStudents();
+//        }
+//            throw new RuntimeException("ID не существует");
+        return facultyRepository.getFacultyById(id).getStudents();
     }
 }

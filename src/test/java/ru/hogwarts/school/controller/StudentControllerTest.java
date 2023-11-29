@@ -63,7 +63,6 @@ class StudentControllerTest {
     @Test
     void updateStudent() {
         student.setId(1L);
-//        student.setName("Ra");
         ResponseEntity<Student> response = this.restTemplate.postForEntity("http://localhost:" + port + "/update/", student, Student.class);
         Assertions //утверждаю что
                 .assertThat(response).isNotNull();

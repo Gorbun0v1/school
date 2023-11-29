@@ -54,7 +54,7 @@ public class Faculty {
         return students;
     }
 
-    public void setStudents(Set<Student> students) {
+    public void setStudents() {
         this.students = students;
     }
 
@@ -68,6 +68,6 @@ public class Faculty {
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, name, color, students);
+        return Objects.hash(id, name, color);
     }
 }
