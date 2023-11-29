@@ -12,6 +12,7 @@ import org.springframework.boot.test.mock.mockito.SpyBean;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MockMvcBuilder;
+import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import ru.hogwarts.school.model.Student;
 import ru.hogwarts.school.repository.StudentRepository;
@@ -19,6 +20,7 @@ import ru.hogwarts.school.service.AvatarService;
 import ru.hogwarts.school.service.FacultyService;
 import ru.hogwarts.school.service.StudentService;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
@@ -64,6 +66,12 @@ public class WebMvcStudentControllerTest {
                 .andExpect(status().isOk())
                         .andExpect(jsonPath("$.id").value(id))
                 .andExpect(jsonPath("$.name").value(name));
+    }
+    @Test
+    void getPort() throws Exception {
+
+        MvcResult result = mockMvc.perform(MockMvcRequestBuilders.get("http://localhost:8080/get-port")).andExpect(status().isOk()).andReturn();
+        assertEquals("8080", result.getResponse().getContentAsString());
     }
 
     @Test

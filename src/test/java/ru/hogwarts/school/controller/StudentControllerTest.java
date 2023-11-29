@@ -103,4 +103,11 @@ class StudentControllerTest {
         assertEquals(faculty, facultyResponseEntity.getBody());
         assertEquals(HttpStatus.OK, facultyResponseEntity.getStatusCode());
     }
+    @Test
+    void getPort() {
+        Integer port = restTemplate.getForObject("http://localhost:8080/get-port", Integer.class);
+        assertEquals(8080, port);
+
+
+    }
 }
