@@ -1,4 +1,4 @@
-CREATE TABLE hogwarts.public.car
+CREATE TABLE hogwarts.public.human
 (
     id      serial primary key,
     name    varchar(15),
@@ -7,7 +7,7 @@ CREATE TABLE hogwarts.public.car
 
 );
 
-CREATE TABLE hogwarts.public.human
+CREATE TABLE hogwarts.public.car
 (
     id    serial primary key,
     brand varchar(15),
