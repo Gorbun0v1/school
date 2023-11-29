@@ -1,5 +1,7 @@
 package ru.hogwarts.school.service;
 
+import org.apache.logging.log4j.util.BiConsumer;
+import org.apache.logging.log4j.util.Supplier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
@@ -9,8 +11,10 @@ import ru.hogwarts.school.model.Faculty;
 import ru.hogwarts.school.model.Student;
 import ru.hogwarts.school.repository.StudentRepository;
 
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
+import java.util.function.BinaryOperator;
+import java.util.function.Function;
+import java.util.stream.Collector;
 
 @Service
 public class StudentService {
@@ -126,4 +130,38 @@ public class StudentService {
         return fiveLastIdStudent;
 
     }
+    public List<Student> getStudentNameStartWithA() {
+        log.info("method getStudentNameStartWithA is run");
+        List<Student> all = studentRepository.findAll();
+        log.debug("Collection<Student> = {}", all);
+
+        Supplier<List<Student>> supplier = ArrayList::new;
+
+        BiConsumer<List<Student>, Student> accumulator = List::add;
+
+        BinaryOperator<List<Student>> combiner = (listLeft, listRight) -> {
+            List<Student> result = Collections.synchronizedList(new ArrayList<>());
+            result.addAll(listLeft);
+            result.addAll(listRight);
+            return result;
+        };
+
+        Function<List<Student>, List<Student>> finisher = Function.identity();
+
+        List<Student> result = all.parallelStream()
+                .filter(e -> e.getName().startsWith("А"))
+                .collect(Collector.of(supplier, accumulator, combiner, finisher, Collector.Characteristics.CONCURRENT));
+        log.debug("result Collection<Student> = {}", result);
+
+        return result;
+    }
+
+    public Double getAVGAgeWithStream() {
+        log.info("method getStudentNameStartWithA is run");
+        List<Student> all = studentRepository.findAll();
+        OptionalDouble average = all.parallelStream().mapToInt(Student::getAge).average();
+        log.debug("avg result = {}", average.orElse(0d));
+        return average.orElse(0d);
+    }
+
 }

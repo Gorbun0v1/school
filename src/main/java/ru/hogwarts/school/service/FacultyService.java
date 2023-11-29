@@ -13,6 +13,8 @@ import ru.hogwarts.school.repository.FacultyRepository;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
+import java.util.function.LongBinaryOperator;
+import java.util.stream.LongStream;
 
 @Service
 public class FacultyService {
@@ -109,5 +111,28 @@ public class FacultyService {
         });
         log.debug("Collection<Student> =" + faculty.getStudents());
         return faculty.getStudents();
+    }
+    public String getLongestFacultyName() {
+        log.info("method getLongestFacultyName is run");
+        List<Faculty> all = facultyRepository.findAll();
+        Optional<String> reduce = all.stream().parallel().map(Faculty::getName).reduce((s1, s2) -> {
+            if (s1.length() > s2.length())
+                return s1;
+            else
+                return s2;
+        });
+
+        log.debug("Longest name is {}", reduce.isPresent());
+        return reduce.orElse("");
+    }
+
+
+    public Long getSomeDigit() {
+        log.info("method getSomeDigit is run");
+        int limitDigit = 1_000_000;
+        LongBinaryOperator bip = Long::sum;
+        Long reduce = LongStream.iterate(1, a -> a + 1).parallel().limit(limitDigit).reduce(0, bip);
+        log.debug("Sum {} element = {}", limitDigit, reduce);
+        return reduce;
     }
 }

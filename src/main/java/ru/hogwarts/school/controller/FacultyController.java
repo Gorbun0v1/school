@@ -60,4 +60,14 @@ public class FacultyController {
     public ResponseEntity<Set<Student>> getAllStudentsByFacultyId(@PathVariable("id") Long id) {
         return ResponseEntity.ok(facultyService.getStudents(id));
     }
+
+    @GetMapping("/get-longest-faculty-name")
+    public String getLongestFacultyName() {
+        return facultyService.getLongestFacultyName();
+    }
+
+    @GetMapping("/get-reduce-method")
+    public Long getSomeDigit() {
+        return facultyService.getSomeDigit();
+    }
 }
