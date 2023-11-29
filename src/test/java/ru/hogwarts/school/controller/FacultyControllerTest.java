@@ -95,4 +95,6 @@ class FacultyControllerTest {
         assertEquals(HttpStatus.OK, studentResponseEntity.getStatusCode());
     }
 
+
+
 }
