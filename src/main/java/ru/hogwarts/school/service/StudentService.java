@@ -164,4 +164,37 @@ public class StudentService {
         return average.orElse(0d);
     }
 
+    public void nonSynchronizePrintSixName() {
+        log.info("method nonSynchronizePrintSixName is run");
+        Queue<Student> all = new ArrayDeque<>(studentRepository.findAll());
+        printTwoNamesNoSynchro(all, 2);
+        Thread t1 = new Thread(() -> printTwoNamesNoSynchro(all, 2));
+        Thread t2 = new Thread(() -> printTwoNamesNoSynchro(all, 2));
+        t1.start();
+        t2.start();
+
+    }
+
+    public void synchronizePrintSixName() {
+        log.info("method synchronizePrintSixName is run");
+        Queue<Student> all = new ArrayDeque<>(studentRepository.findAll());
+        printTwoNamesSynchro(all, 2);
+        Thread t1 = new Thread(() -> printTwoNamesSynchro(all, 2));
+        Thread t2 = new Thread(() -> printTwoNamesSynchro(all, 2));
+        t1.start();
+        t2.start();
+    }
+
+    private synchronized void printTwoNamesSynchro(Queue<Student> queue, int amount) {
+        for (int i = 0; i < amount; i++) {
+            System.out.println(queue.poll());
+        }
+    }
+
+    private void printTwoNamesNoSynchro(Queue<Student> queue, int amount) {
+        for (int i = 0; i < amount; i++) {
+            System.out.println(queue.poll());
+        }
+    }
+
 }
