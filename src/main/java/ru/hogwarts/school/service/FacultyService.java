@@ -1,52 +1,139 @@
 package ru.hogwarts.school.service;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import ru.hogwarts.school.exceptionHandler.NotFoundFacultyException;
+import ru.hogwarts.school.exceptionHandler.NotSupportedClassException;
 import ru.hogwarts.school.model.Faculty;
+import ru.hogwarts.school.model.Student;
+import ru.hogwarts.school.repository.FacultyRepository;
 
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
+import java.util.function.LongBinaryOperator;
+import java.util.stream.LongStream;
 
 @Service
 public class FacultyService {
-
-    private final Map<Long, Faculty> faculties = new HashMap<>();
+    private final FacultyRepository facultyRepository;
+    private final Logger log = LoggerFactory.getLogger(FacultyService.class);
+    public FacultyService(FacultyRepository facultyRepository) {
+        log.info("@Bean FacultyServices is created");
+        this.facultyRepository = facultyRepository;
+    }
 
     private long counter = 0L;
 
     // Создаем CRUD-методы
 
     public Faculty createFaculty(Faculty faculty) {
-       List<Faculty> faculties1 = faculties.values().stream()
-                        .filter(f -> f.getColor().equals(faculty.getColor())).toList();
-        if (faculties1.size() > 0) {
-            throw new RuntimeException();
+        log.info("method add is run");
+        log.debug("Faculty input: " + faculty);
+
+        Faculty createFaculty = null;
+
+        try {
+            createFaculty = facultyRepository.save(faculty);
+        } catch (RuntimeException e) {
+            log.error("Not can upload new Faculty. Reason: " + e.getMessage());
+            throw new NotSupportedClassException("JSON not valid");
         }
-        faculty.setId(++counter);
-        faculties.put(counter, faculty);
-        return faculty;
+
+        log.info("Student " + createFaculty + " upload to db");
+        return createFaculty;
     }
 
     public Faculty readFaculty(long id) {
-        return faculties.get(id);
+        log.info("method get is run");
+        Faculty findFaculty = facultyRepository.findById(id).orElseThrow(() -> {
+            log.warn("method get cannot find Faculty id = " + id);
+            return new NotFoundFacultyException("Нет такого факультета с id " + id);
+        });
+        log.debug("findFaculty = " + findFaculty);
+        return findFaculty;
     }
-
     public Faculty updateFaculty(Faculty faculty) {
-        if (faculties.containsKey(faculty.getId())) {
-            faculties.put(faculty.getId(), faculty);
-            return faculty;
-        }
-        return null;
+        log.info("method update is run");
+        facultyRepository.findById(faculty.getId()).orElseThrow(() -> {
+            log.warn("method update cannot find faculty " + faculty);
+            return new NotFoundFacultyException("Нет такого факультета");
+        });
+        log.debug("find faculty for update = " + faculty);
+        return facultyRepository.save(faculty);
     }
 
     public Faculty deleteFaculty(long id) {
-        return faculties.remove(id);
+        log.info("method remove is run");
+        Faculty faculty = facultyRepository.findById(id).orElseThrow(() -> {
+            log.warn("Faculty is not found");
+            return new NotFoundFacultyException("Нет такого факультета");
+        });
+        facultyRepository.deleteById(id);
+        log.debug("faculty deleted " + faculty);
+        return faculty;
     }
 
     public List<Faculty> filterFacultiesByColor (String color) {
-        return faculties.values().stream()
-                .filter(f -> f.getColor().equals(color))
-                .toList();
+        log.info("method filterByColor is run");
+        List<Faculty> facultyByColor = facultyRepository.findAllByColor(color);
+        log.debug("Collection<Faculty> =" + facultyByColor);
+        return facultyByColor;
+    }
+
+    public List<Faculty> findByName(String name) {
+    return facultyRepository.findByNameIgnoreCaseOrColorIgnoreCase("", name);
+    }
+
+    public List<Faculty> findByColorOrName(String color, String name) {
+        log.info("method filterByColorOrName is run");
+        return facultyRepository.findByNameIgnoreCaseOrColorIgnoreCase(name, color);    }
+
+    public List<Faculty> getAllFaculty() {
+        log.info("method getAllFaculty is run");
+        List<Faculty> all = facultyRepository.findAll();
+        log.debug("Collection<Faculty> = " + all);
+        return all;
+    }
+
+    public Set<Student> getStudents(Long id) {
+//        Optional<Faculty> faculty = facultyRepository.findById(id);
+//        if (faculty.isPresent()) {
+//            return faculty.get().getStudents();
+//        }
+//            throw new RuntimeException("ID не существует");
+        log.info("method getAllStudentOfSelectedFaculty is run");
+        Faculty faculty = facultyRepository.findById(id).orElseThrow(() -> {
+            log.warn("method getAllStudentOfSelectedFaculty cannot find faculty with id " + id);
+            return new NotFoundFacultyException("Факультет с id " + id + " не найден");
+        });
+        log.debug("Collection<Student> =" + faculty.getStudents());
+        return faculty.getStudents();
+    }
+    public String getLongestFacultyName() {
+        log.info("method getLongestFacultyName is run");
+        List<Faculty> all = facultyRepository.findAll();
+        Optional<String> reduce = all.stream().parallel().map(Faculty::getName).reduce((s1, s2) -> {
+            if (s1.length() > s2.length())
+                return s1;
+            else
+                return s2;
+        });
+
+        log.debug("Longest name is {}", reduce.isPresent());
+        return reduce.orElse("");
+    }
+
+
+    public Long getSomeDigit() {
+        log.info("method getSomeDigit is run");
+        int limitDigit = 1_000_000;
+        LongBinaryOperator bip = Long::sum;
+        Long reduce = LongStream.iterate(1, a -> a + 1).parallel().limit(limitDigit).reduce(0, bip);
+        log.debug("Sum {} element = {}", limitDigit, reduce);
+        return reduce;
     }
 
 }
